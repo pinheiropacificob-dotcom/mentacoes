@@ -1,1 +1,1274 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>MENTAÇÕES — Sua mente em palavras</title>
+  <meta name="theme-color" content="#100d18">
+  <meta name="description" content="Descubra, compartilhe e publique citações no MENTAÇÕES.">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #100d18;
+      color: #f5f3ff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 22px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #30243f;
+      background: #151020;
+    }
+
+    .logo {
+      color: #a78bfa;
+      font-size: 27px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      cursor: pointer;
+    }
+
+    .menu-principal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      background: #8b5cf6;
+      color: white;
+      border: none;
+      padding: 11px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    button:hover {
+      background: #7c3aed;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .menu-principal button {
+      background: transparent;
+      color: #d6d0e4;
+      border: 1px solid transparent;
+    }
+
+    .menu-principal button:hover {
+      background: #30243f;
+      color: #c4b5fd;
+    }
+
+    .menu-principal button.selecionado {
+      background: #30243f;
+      border-color: #8b5cf6;
+      color: #c4b5fd;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+      flex: 1;
+    }
+
+    .tela {
+      display: none;
+    }
+
+    .tela.ativa {
+      display: block;
+      animation: aparecer 0.2s ease-in-out;
+    }
+
+    @keyframes aparecer {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .intro {
+      padding: 35px 0;
+      margin-bottom: 20px;
+    }
+
+    .intro h1 {
+      font-size: 38px;
+      margin-bottom: 15px;
+      line-height: 1.2;
+    }
+
+    .intro h1 span {
+      color: #a78bfa;
+    }
+
+    .intro p {
+      color: #aaa1bd;
+      line-height: 1.8;
+      margin-bottom: 24px;
+      max-width: 620px;
+    }
+
+    .auth-box,
+    .quote {
+      background: #1c1728;
+      border: 1px solid #38294d;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .auth-box h2 {
+      color: #c4b5fd;
+      margin-bottom: 20px;
+    }
+
+    input,
+    textarea,
+    select {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 14px;
+      border-radius: 8px;
+      border: 1px solid #49365f;
+      background: #100d18;
+      color: white;
+      font-size: 15px;
+      font-family: inherit;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 2px solid #8b5cf6;
+      outline-offset: 1px;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+    }
+
+    input:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    label {
+      display: block;
+      color: #d6d0e4;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    select option {
+      background: #1c1728;
+      color: white;
+    }
+
+    .auth-buttons,
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .secondary {
+      background: #30243f;
+    }
+
+    .secondary:hover {
+      background: #49365f;
+    }
+
+    #auth-message,
+    #mensagem-publicacao,
+    #estado-citacoes,
+    #mensagem-perfil {
+      color: #c4b5fd;
+      margin-top: 14px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin: 30px 0 18px;
+    }
+
+    .section-heading h2 {
+      color: #c4b5fd;
+    }
+
+    /* PESQUISA E FILTROS */
+    .pesquisa-box {
+      background: #1c1728;
+      border: 1px solid #38294d;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .pesquisa-box input,
+    .pesquisa-box select {
+      margin-top: 8px;
+    }
+
+    .pesquisa-acoes {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #resultado-pesquisa {
+      color: #c4b5fd;
+      margin-top: 14px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .category {
+      color: #b69aff;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .quote p {
+      font-size: 19px;
+      line-height: 1.7;
+      margin: 15px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .author {
+      color: #aaa1bd;
+      font-size: 14px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .perfil-cabecalho {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    #foto-perfil-preview {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid #a78bfa;
+      background: #30243f;
+    }
+
+    #nome-perfil-exibido {
+      font-size: 18px;
+      margin-bottom: 8px;
+      overflow-wrap: anywhere;
+    }
+
+    #email-perfil-exibido {
+      color: #aaa1bd;
+      overflow-wrap: anywhere;
+    }
+
+    .aviso {
+      color: #aaa1bd;
+      line-height: 1.7;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 28px 15px;
+      color: #827991;
+      font-size: 13px;
+      border-top: 1px solid #30243f;
+      margin-top: auto;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 20px;
+        justify-content: center;
+      }
+
+      .logo {
+        width: 100%;
+        text-align: center;
+      }
+
+      .menu-principal {
+        width: 100%;
+        gap: 5px;
+      }
+
+      .menu-principal button {
+        padding: 10px;
+      }
+
+      .container {
+        margin: 25px auto;
+      }
+
+      .intro {
+        padding: 20px 0;
+      }
+
+      .intro h1 {
+        font-size: 30px;
+      }
+
+      .auth-box,
+      .quote {
+        padding: 18px;
+      }
+
+      .pesquisa-box {
+        padding: 16px;
+      }
+    }
+  
+/* =====================================
+   MENTACOES — NEON ROXO FUTURISTA
+   ===================================== */
+
+:root {
+  --neon: #a855f7;
+  --neon-claro: #d8b4fe;
+  --neon-escuro: #7e22ce;
+  --fundo-card: rgba(24, 16, 38, 0.82);
+  --borda-neon: rgba(168, 85, 247, 0.28);
+}
+
+/* Fundo com iluminação roxa */
+body {
+  position: relative;
+  isolation: isolate;
+  background-color: #0b0712;
+  background-image:
+    radial-gradient(
+      circle at 12% 8%,
+      rgba(126, 34, 206, 0.19),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 88% 38%,
+      rgba(147, 51, 234, 0.12),
+      transparent 35%
+    );
+  background-attachment: fixed;
+}
+
+/* Luz ambiente animada */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(126, 34, 206, 0.08),
+    transparent 65%
+  );
+  animation: luzAmbiente 12s ease-in-out infinite alternate;
+}
+
+@keyframes luzAmbiente {
+  from {
+    opacity: 0.45;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* Títulos com destaque */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+h1 {
+  text-shadow: 0 0 22px rgba(168, 85, 247, 0.2);
+}
+
+h2 {
+  text-shadow: 0 0 14px rgba(168, 85, 247, 0.12);
+}
+
+/* Cartões de citações */
+.quote {
+  position: relative;
+  overflow: hidden;
+  background: var(--fundo-card);
+  border: 1px solid var(--borda-neon);
+  border-radius: 16px;
+  box-shadow: 0 5px 22px rgba(0, 0, 0, 0.16);
+  transition:
+    transform 250ms ease,
+    border-color 250ms ease,
+    box-shadow 250ms ease;
+}
+
+.quote::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  width: 76%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--neon-claro),
+    transparent
+  );
+  opacity: 0.55;
+}
+
+.quote:hover {
+  transform: translateY(-4px);
+  border-color: rgba(192, 132, 252, 0.75);
+  box-shadow:
+    0 10px 30px rgba(126, 34, 206, 0.14),
+    inset 0 0 18px rgba(168, 85, 247, 0.035);
+}
+
+/* Etiquetas das categorias */
+.category {
+  color: var(--neon-claro);
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+/* Botões com gradiente futurista */
+button {
+  border-color: rgba(168, 85, 247, 0.35);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    filter 200ms ease;
+}
+
+button:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.2);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Campos de entrada */
+input,
+select,
+textarea {
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--neon);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.13);
+}
+
+/* Acessibilidade: navegação por teclado */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--neon-claro);
+  outline-offset: 3px;
+}
+
+/* Movimento reduzido quando solicitado */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* ==========================================
+  
+/* MENTACOES — TEMA ROXO NEON */
+
+:root {
+  --neon: #a855f7;
+  --neon-claro: #d8b4fe;
+  --fundo-card: #181026;
+  --borda-neon: rgba(168, 85, 247, 0.32);
+}
+
+body {
+  position: relative;
+  isolation: isolate;
+  background-color: #0b0712;
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(126, 34, 206, 0.2), transparent 32%),
+    radial-gradient(circle at 88% 38%, rgba(147, 51, 234, 0.13), transparent 35%);
+  background-attachment: fixed;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(126, 34, 206, 0.09), transparent 65%);
+  animation: luzAmbiente 12s ease-in-out infinite alternate;
+}
+
+@keyframes luzAmbiente {
+  from { opacity: 0.45; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1.05); }
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+  text-shadow: 0 0 18px rgba(168, 85, 247, 0.16);
+}
+
+/* Cartões de citações */
+#inicio .quote {
+  position: relative;
+  overflow: hidden;
+  padding: 26px;
+  margin: 0 0 22px;
+  border: 1px solid var(--borda-neon);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #231635, #130d1f);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+}
+
+#inicio .quote::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 8%;
+  width: 84%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #a855f7, #e9d5ff, #a855f7, transparent);
+  pointer-events: none;
+}
+
+#inicio .quote:hover {
+  transform: translateY(-4px);
+  border-color: rgba(192, 132, 252, 0.75);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28), 0 0 22px rgba(126, 34, 206, 0.14);
+}
+
+.category {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid rgba(192, 132, 252, 0.3);
+  border-radius: 999px;
+  background: rgba(126, 34, 206, 0.16);
+  color: var(--neon-claro);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+#inicio .quote p {
+  margin: 20px 0;
+  color: #f5f3ff;
+  font-size: 20px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+#inicio .quote .author {
+  padding-top: 15px;
+  margin-bottom: 18px;
+  border-top: 1px solid rgba(168, 85, 247, 0.15);
+  color: #aaa1bd;
+  font-size: 13px;
+}
+
+/* Botões */
+button {
+  position: relative;
+  border: 1px solid rgba(192, 132, 252, 0.42);
+  border-radius: 10px;
+  background: linear-gradient(135deg, #9333ea, #7e22ce, #6d28d9);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(126, 34, 206, 0.18);
+  transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
+}
+
+button:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 18px rgba(168, 85, 247, 0.25);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Menu */
+.menu-principal button {
+  background: transparent;
+  color: #d6d0e4;
+  border-color: transparent;
+  box-shadow: none;
+  font-weight: 500;
+}
+
+.menu-principal button:hover,
+.menu-principal button.selecionado {
+  background: rgba(126, 34, 206, 0.18);
+  border-color: rgba(168, 85, 247, 0.65);
+  color: #e9d5ff;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.12);
+}
+
+.menu-principal button:hover {
+  transform: none;
+}
+
+button.secondary {
+  background: linear-gradient(135deg, #30243f, #241831);
+  border-color: #49365f;
+}
+
+/* Campos e acessibilidade */
+input, select, textarea {
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--neon);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+}
+
+button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--neon-claro);
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  #inicio .quote {
+    padding: 20px;
+    border-radius: 15px;
+  }
+
+  #inicio .quote p {
+    font-size: 18px;
+    line-height: 1.7;
+  }
+
+  #inicio .quote .actions button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  #inicio .quote:hover, button:hover, button:active {
+    transform: none;
+  }
+}
+</style>
+</head>
+
+<body>
+  <header>
+    <div class="logo" onclick="mostrarTela('inicio')">
+      MENTAÇÕES.
+    </div>
+
+    <nav class="menu-principal" aria-label="Navegação principal">
+      <button type="button" data-menu="inicio"
+        onclick="mostrarTela('inicio')">
+        Início
+      </button>
+
+      <button type="button" data-menu="entrar"
+        onclick="mostrarTela('entrar')">
+        Entrar
+      </button>
+
+      <button type="button" data-menu="perfil"
+        onclick="mostrarTela('perfil')">
+        Perfil
+      </button>
+      
+<button type="button" data-menu="favoritos"
+  onclick="mostrarTela('favoritos')">
+  ⭐ Favoritos
+</button>
+
+
+      <button type="button" data-menu="publicar"
+        onclick="abrirFormularioPublicacao()">
+        Publicar
+      </button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <!-- TELA INICIAL -->
+    <section class="tela ativa" data-tela="inicio" id="inicio">
+
+      <section class="intro">
+        <h1>Sua mente, <span>em palavras.</span></h1>
+
+        <p>
+          Um espaço para descobrir pensamentos, compartilhar ideias
+          e transformar sentimentos em citações.
+        </p>
+
+        <button type="button" onclick="abrirFormularioPublicacao()">
+          + Publicar citação
+        </button>
+      </section>
+
+      <div class="section-heading">
+        <h2>Citações da comunidade</h2>
+      </div>
+
+      <!-- PESQUISA E FILTROS -->
+      <div class="pesquisa-box">
+        <label for="pesquisa-citacoes">Pesquisar citações</label>
+
+        <input
+          type="search"
+          id="pesquisa-citacoes"
+          placeholder="Digite uma palavra ou frase..."
+          autocomplete="off"
+        >
+
+        <label for="filtro-categoria">Filtrar por categoria</label>
+
+        <select id="filtro-categoria">
+          <option value="">Todas as categorias</option>
+          <option value="Reflexão">Reflexão</option>
+          <option value="Vida">Vida</option>
+          <option value="Amor">Amor</option>
+          <option value="Motivação">Motivação</option>
+          <option value="Filosofia">Filosofia</option>
+        </select>
+
+        <div class="pesquisa-acoes">
+          <button
+            type="button"
+            class="secondary"
+            id="limpar-pesquisa"
+          >
+            Limpar filtros
+          </button>
+        </div>
+
+        <p id="resultado-pesquisa" role="status" aria-live="polite" hidden></p>
+      </div>
+
+      <!-- CITAÇÕES DE EXEMPLO -->
+      <article class="quote">
+        <span class="category">Reflexão</span>
+
+        <p>
+          Nem todo silêncio é vazio. Às vezes, ele está cheio de pensamentos.
+        </p>
+
+        <div class="author">Por: Equipe MENTAÇÕES</div>
+
+        <div class="actions">
+          <button type="button" onclick="copiar(this)">
+            Copiar citação
+          </button>
+        </div>
+      </article>
+
+      <article class="quote">
+        <span class="category">Vida</span>
+
+        <p>
+          Cada novo dia é uma oportunidade de enxergar o mundo de outra maneira.
+        </p>
+
+        <div class="author">Por: Equipe MENTAÇÕES</div>
+
+        <div class="actions">
+          <button type="button" onclick="copiar(this)">
+            Copiar citação
+          </button>
+        </div>
+      </article>
+
+      <p id="estado-citacoes" role="status" aria-live="polite">
+        Carregando citações publicadas...
+      </p>
+
+      <div id="lista-citacoes"></div>
+    </section>
+
+    <!-- TELA DE LOGIN E CADASTRO -->
+    <section class="auth-box tela" id="conta" data-tela="entrar">
+      <h2>Sua conta MENTAÇÕES</h2>
+
+      <p class="aviso">
+        Entre na sua conta ou crie um cadastro para participar da comunidade.
+      </p>
+
+      <form id="auth-form">
+        <label for="email">E-mail</label>
+
+        <input
+          id="email"
+          type="email"
+          placeholder="Seu e-mail"
+          autocomplete="email"
+          required
+        >
+
+        <label for="password">Senha</label>
+
+        <input
+          id="password"
+          type="password"
+          placeholder="Sua senha (mínimo de 6 caracteres)"
+          autocomplete="current-password"
+          minlength="6"
+          required
+        >
+
+        <div class="auth-buttons">
+          <button type="submit" id="login-btn">
+            Entrar
+          </button>
+
+          <button type="button" id="signup-btn">
+            Criar conta
+          </button>
+
+          <button type="button" id="logout-btn" hidden>
+            Sair da conta
+          </button>
+        </div>
+      </form>
+
+      <p id="auth-message" role="status" aria-live="polite">
+        Entre ou crie sua conta para participar.
+      </p>
+    </section>
+
+    <!-- TELA DO PERFIL -->
+    <section class="auth-box tela" id="perfil" data-tela="perfil">
+      <h2>👤 Meu perfil</h2>
+
+      <div class="perfil-cabecalho">
+        <img
+          id="foto-perfil-preview"
+          alt="Foto de perfil"
+          hidden
+        >
+
+        <div>
+          <p id="nome-perfil-exibido">Membro</p>
+          <p id="email-perfil-exibido"></p>
+        </div>
+      </div>
+
+      <form id="perfil-form">
+        <label for="nome-perfil">Nome de exibição</label>
+
+        <input
+          id="nome-perfil"
+          type="text"
+          maxlength="40"
+          placeholder="Como quer aparecer no site"
+          autocomplete="nickname"
+          required
+          disabled
+        >
+
+        <label for="foto-perfil-arquivo">
+          Foto de perfil (JPG, PNG ou WebP; até 2 MB)
+        </label>
+
+        <input
+          id="foto-perfil-arquivo"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          disabled
+        >
+
+        <button
+          type="submit"
+          id="salvar-perfil-btn"
+          disabled
+        >
+          Salvar perfil
+        </button>
+
+        <p id="mensagem-perfil" role="status" aria-live="polite">
+          Entre na sua conta para editar seu perfil.
+        </p>
+      </form>
+    </section>
+
+<!-- TELA DE FAVORITOS -->
+<section class="auth-box tela" id="favoritos" data-tela="favoritos">
+  <h2>⭐ Meus favoritos</h2>
+
+  <p class="aviso">
+    Aqui ficam as citações que você salvou para ler novamente.
+  </p>
+
+  <p id="estado-favoritos" role="status" aria-live="polite">
+    Entre na sua conta para ver seus favoritos.
+  </p>
+
+  <div id="lista-favoritos"></div>
+
+  <button type="button" class="secondary"
+    onclick="mostrarTela('inicio')">
+    Voltar às citações
+  </button>
+</section>
+
+    <!-- TELA DE PUBLICAÇÃO -->
+    <section
+      class="auth-box tela"
+      id="form-publicacao"
+      data-tela="publicar"
+    >
+      <h2>✍️ Publicar citação</h2>
+
+      <p class="aviso">
+        Compartilhe uma ideia sua com a comunidade MENTAÇÕES.
+      </p>
+
+      <form id="citacao-form">
+        <label for="conteudo-citacao">Sua citação</label>
+
+        <textarea
+          id="conteudo-citacao"
+          placeholder="Escreva sua citação..."
+          maxlength="1000"
+          rows="5"
+          required
+        ></textarea>
+
+        <label for="categoria-citacao">Categoria</label>
+
+        <select id="categoria-citacao" required>
+          <option value="Reflexão">Reflexão</option>
+          <option value="Vida">Vida</option>
+          <option value="Amor">Amor</option>
+          <option value="Motivação">Motivação</option>
+          <option value="Filosofia">Filosofia</option>
+        </select>
+
+        <div class="auth-buttons">
+          <button type="submit" id="salvar-btn">
+            Salvar citação
+          </button>
+
+          <button
+            type="button"
+            class="secondary"
+            onclick="fecharFormularioPublicacao()"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+
+      <p id="mensagem-publicacao" role="status" aria-live="polite"></p>
+    </section>
+
+  </main>
+
+  <footer>
+    © 2026 MENTAÇÕES — Pensamentos que merecem ser lidos.
+  </footer>
+
+  <script>
+    // NAVEGAÇÃO ENTRE TELAS
+    function mostrarTela(tela) {
+    const destinos = {
+  inicio: "inicio",
+  entrar: "conta",
+  perfil: "perfil",
+  favoritos: "favoritos",
+  publicar: "form-publicacao"
+};
+
+      if (!destinos[tela]) {
+        tela = "inicio";
+      }
+
+      if (tela === "publicar" && !window.usuarioMentacoes) {
+        document.getElementById("auth-message").textContent =
+          "Entre na sua conta para publicar citações.";
+
+        tela = "entrar";
+      }
+
+      document.querySelectorAll("[data-tela]").forEach(function(secao) {
+        secao.classList.toggle("ativa", secao.dataset.tela === tela);
+      });
+
+      document.querySelectorAll("[data-menu]").forEach(function(botao) {
+        const selecionado = botao.dataset.menu === tela;
+
+        botao.classList.toggle("selecionado", selecionado);
+
+        if (selecionado) {
+          botao.setAttribute("aria-current", "page");
+        } else {
+          botao.removeAttribute("aria-current");
+        }
+      });
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    // COPIAR CITAÇÃO
+    async function copiar(botao) {
+      const citacao = botao
+        .closest(".quote")
+        .querySelector("p").textContent.trim();
+
+      try {
+        await navigator.clipboard.writeText(citacao);
+
+        const textoOriginal = botao.textContent;
+        botao.textContent = "Copiado!";
+
+        setTimeout(function() {
+          botao.textContent = textoOriginal;
+        }, 1500);
+      } catch (erro) {
+        alert("Não foi possível copiar a citação. Tente novamente.");
+      }
+    }
+
+    // PUBLICAR CITAÇÃO
+    function abrirFormularioPublicacao() {
+      if (!window.usuarioMentacoes) {
+        mostrarTela("entrar");
+        return;
+      }
+
+      mostrarTela("publicar");
+      document.getElementById("conteudo-citacao").focus();
+    }
+
+    function fecharFormularioPublicacao() {
+      mostrarTela("inicio");
+    }
+
+    // NORMALIZAR TEXTO PARA IGNORAR DIFERENÇAS ENTRE MAIÚSCULAS,
+    // MINÚSCULAS E ACENTOS.
+    function normalizarTexto(texto) {
+      return texto
+        .toLocaleLowerCase("pt-BR")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    // PESQUISAR E FILTRAR CITAÇÕES
+    function filtrarCitacoes() {
+      const campoPesquisa = document.getElementById("pesquisa-citacoes");
+      const campoCategoria = document.getElementById("filtro-categoria");
+      const resultado = document.getElementById("resultado-pesquisa");
+
+      if (!campoPesquisa || !campoCategoria || !resultado) {
+        return;
+      }
+
+      const termo = normalizarTexto(campoPesquisa.value.trim());
+      const categoriaSelecionada =
+        normalizarTexto(campoCategoria.value.trim());
+
+      // Inclui exemplos e citações carregadas pelo Supabase.
+      const citacoes = document.querySelectorAll(
+        "#inicio .quote"
+      );
+
+      let quantidadeVisivel = 0;
+
+      citacoes.forEach(function(citacao) {
+        const elementoTexto = citacao.querySelector("p");
+        const elementoCategoria = citacao.querySelector(".category");
+
+        const texto = normalizarTexto(
+          elementoTexto ? elementoTexto.textContent : ""
+        );
+
+        const categoria = normalizarTexto(
+          elementoCategoria ? elementoCategoria.textContent.trim() : ""
+        );
+
+        const correspondeTexto = texto.includes(termo);
+
+        const correspondeCategoria =
+          categoriaSelecionada === "" ||
+          categoria === categoriaSelecionada;
+
+        const mostrar =
+          correspondeTexto && correspondeCategoria;
+
+        citacao.hidden = !mostrar;
+
+        if (mostrar) {
+          quantidadeVisivel++;
+        }
+      });
+
+      const existemFiltros =
+        termo !== "" || categoriaSelecionada !== "";
+
+      resultado.hidden = !existemFiltros;
+
+      if (existemFiltros) {
+        if (quantidadeVisivel === 0) {
+          resultado.textContent =
+            "Nenhuma citação encontrada. Experimente outras palavras ou categorias.";
+        } else if (quantidadeVisivel === 1) {
+          resultado.textContent = "1 citação encontrada.";
+        } else {
+          resultado.textContent =
+            quantidadeVisivel + " citações encontradas.";
+        }
+      } else {
+        resultado.textContent = "";
+      }
+    }
+
+    // ATUALIZAR A PESQUISA QUANDO O USUÁRIO DIGITAR
+    document
+      .getElementById("pesquisa-citacoes")
+      .addEventListener("input", filtrarCitacoes);
+
+    // ATUALIZAR AO ESCOLHER UMA CATEGORIA
+    document
+      .getElementById("filtro-categoria")
+      .addEventListener("change", filtrarCitacoes);
+
+    // LIMPAR PESQUISA E CATEGORIA
+    document
+      .getElementById("limpar-pesquisa")
+      .addEventListener("click", function() {
+        document.getElementById("pesquisa-citacoes").value = "";
+        document.getElementById("filtro-categoria").value = "";
+
+        filtrarCitacoes();
+      });
+
+    // OBSERVAR CITAÇÕES ADICIONADAS DINAMICAMENTE PELO SUPABASE
+    const listaObservada = document.getElementById("lista-citacoes");
+
+    if (listaObservada) {
+      const observadorCitacoes = new MutationObserver(function() {
+        filtrarCitacoes();
+      });
+
+      observadorCitacoes.observe(listaObservada, {
+        childList: true,
+        subtree: true
+      });
+    }
+
+    // ABRIR O SITE NA PÁGINA INICIAL
+    mostrarTela("inicio");
+  </script>
+
+  <!-- Mantém a integração existente com o Supabase. -->
+  <script src="supabase.js"></script>
+</body>
+</html>
