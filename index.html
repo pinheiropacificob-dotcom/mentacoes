@@ -8,8 +8,7 @@
   <title>MENTAÇÕES — Sua mente em palavras</title>
   <meta name="theme-color" content="#100d18">
   <meta name="description" content="Descubra, compartilhe e publique citações no MENTAÇÕES.">
-```html
-<img src="logo.png" alt="Logo MENTAÇÕES" class="logo">
+
 ```
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -44,12 +43,31 @@
       background: #151020;
     }
 
-    .logo {
-      color: #a78bfa;
-      font-size: 27px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      cursor: pointer;
+  
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #a78bfa;
+  font-size: 27px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+}
+
+.logo-imagem {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+@media (max-width: 600px) {
+  .marca {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
     }
 
     .menu-principal {
@@ -762,10 +780,12 @@ button:focus-visible, a:focus-visible {
 </head>
 
 <body>
-  <header>
-    <div class="logo" onclick="mostrarTela('inicio')">
-      MENTAÇÕES.
-    </div>
+ 
+<header>
+  <div class="marca" onclick="mostrarTela('inicio')">
+    <img src="logo.png" alt="Logo MENTAÇÕES" class="logo-imagem">
+    <span>MENTAÇÕES.</span>
+  </div>
 
     <nav class="menu-principal" aria-label="Navegação principal">
       <button type="button" data-menu="inicio"
