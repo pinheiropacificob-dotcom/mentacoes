@@ -921,47 +921,43 @@ button:focus-visible, a:focus-visible {
         Entre na sua conta ou crie um cadastro para participar da comunidade.
       </p>
 
-      <form id="auth-form">
-        <label for="Usuario">nick</label>
+     
+<form id="auth-form">
+  <label for="nickname">Nickname</label>
+  <input
+    id="nickname"
+    type="text"
+    placeholder="Seu nome de usuário"
+    minlength="3"
+    maxlength="20"
+    pattern="[A-Za-z0-9_]+"
+    autocomplete="username"
+    required
+  >
 
-        <input
-          id="nick"
-          type="Nome de usuario"
-          placeholder="Seu nome"
-          autocomplete="o"
-          required
-        >
+  <label for="password">Senha</label>
+  <input
+    id="password"
+    type="password"
+    placeholder="Sua senha (mínimo de 6 caracteres)"
+    autocomplete="current-password"
+    minlength="6"
+    required
+  >
 
-        <label for="password">Senha</label>
+  <div class="auth-buttons">
+    <button type="submit" id="login-btn">Entrar</button>
+    <button type="button" id="signup-btn">Criar conta</button>
+    <button type="button" id="logout-btn" hidden>
+      Sair da conta
+    </button>
+  </div>
+</form>
 
-        <input
-          id="password"
-          type="password"
-          placeholder="Sua senha (mínimo de 6 caracteres)"
-          autocomplete="current-password"
-          minlength="6"
-          required
-        >
+<p id="auth-message" role="status" aria-live="polite">
+  Entre ou crie sua conta para participar.
+</p>
 
-        <div class="auth-buttons">
-          <button type="submit" id="login-btn">
-            Entrar
-          </button>
-
-          <button type="button" id="signup-btn">
-            Criar conta
-          </button>
-
-          <button type="button" id="logout-btn" hidden>
-            Sair da conta
-          </button>
-        </div>
-      </form>
-
-      <p id="auth-message" role="status" aria-live="polite">
-        Entre ou crie sua conta para participar.
-      </p>
-    </section>
 
     <!-- TELA DO PERFIL -->
     <section class="auth-box tela" id="perfil" data-tela="perfil">
