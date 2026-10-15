@@ -1070,7 +1070,6 @@ Promise.resolve().then(() => {
   });
 });
 
-async function 
  // -------------------------
 // INICIALIZAÇÃO
 // -------------------------
