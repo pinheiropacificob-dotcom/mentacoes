@@ -1036,6 +1036,7 @@ citacaoForm.addEventListener("submit", async event => {
   }
 });
 
+
  // -------------------------
 // INICIALIZAÇÃO
 // -------------------------
@@ -1043,47 +1044,22 @@ citacaoForm.addEventListener("submit", async event => {
 let inicializacaoEmAndamento = false;
 
 supabaseClient.auth.onAuthStateChange((evento, session) => {
-  // Evita repetir operações para o mesmo estado de autenticação.
- usuarioMentacoes = session?.user ?? null;
-window.usuarioMentacoes = usuarioMentacoes;
-
-Promise.resolve().then(() => {
-  definirUsuario(session?.user ?? null);
-});
-
-  // Executa as consultas depois do callback de autenticação.
- 
- // -------------------------
-// INICIALIZAÇÃO
-// -------------------------
-
-
-supabaseClient.auth.onAuthStateChange((evento, session) => {
   usuarioMentacoes = session?.user ?? null;
   window.usuarioMentacoes = usuarioMentacoes;
 
-  atualizarInterfaceVisual();
+  Promise.resolve().then(async () => {
+    if (inicializacaoEmAndamento) return;
 
-  // Evita executar várias cargas simultaneamente.
-  if (inicializacaoEmAndamento) return;
+    inicializacaoEmAndamento = true;
 
-  inicializacaoEmAndamento = true;
-
-  Promise.resolve()
-    .then(async () => {
-      if (usuarioMentacoes) {
-        await carregarPerfil();
-      }
-
-      await carregarCitacoes();
-      await carregarFavoritos();
-    })
-    .catch(error => {
+    try {
+      await definirUsuario(session?.user ?? null);
+    } catch (error) {
       console.error("Erro ao atualizar a sessão:", error);
-    })
-    .finally(() => {
+    } finally {
       inicializacaoEmAndamento = false;
-    });
+    }
+  });
 });
 
 async function iniciarMentacoes() {
@@ -1093,19 +1069,10 @@ async function iniciarMentacoes() {
 
     if (error) throw error;
 
-    usuarioMentacoes = data.session?.user ?? null;
-    window.usuarioMentacoes = usuarioMentacoes;
-
-    atualizarInterfaceVisual();
-
-    if (usuarioMentacoes) {
-      await carregarPerfil();
-    }
-
-    await carregarCitacoes();
-    await carregarFavoritos();
+    await definirUsuario(data.session?.user ?? null);
   } catch (error) {
     console.error("Erro ao iniciar o MENTAÇÕES:", error);
+
     mensagem(
       authMessage,
       "Não foi possível verificar sua sessão. Atualize a página."
@@ -1114,9 +1081,6 @@ async function iniciarMentacoes() {
 }
 
 iniciarMentacoes();
-
- iniciarMentacoes();
-
 
 document
   .getElementById("form-citacao-oficial")
