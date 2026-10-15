@@ -1075,10 +1075,9 @@ async function iniciarMentacoes() {
     return;
   }
 
-  usuarioMentacoes = data.session?.user ?? null;
-  window.usuarioMentacoes = usuarioMentacoes;
+  await definirUsuario(data.session?.user ?? null);
+}
 
-  atualizarInterfaceVisual();
 
   if (usuarioMentacoes) {
     await carregarPerfil();
