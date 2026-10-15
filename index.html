@@ -1089,6 +1089,31 @@ button:focus-visible, a:focus-visible {
       <p id="mensagem-publicacao" role="status" aria-live="polite"></p>
     </section>
 
+    <section id="painel-admin" style="display: none;">
+      <h2>⚙️ Administração — MENTAÇÕES</h2>
+      <p>Publique citações oficiais da equipe.</p>
+
+      <form id="form-citacao-oficial">
+        <label for="conteudo-oficial">Citação</label>
+        <textarea
+          id="conteudo-oficial"
+          placeholder="Escreva a citação oficial..."
+          required
+        ></textarea>
+
+        <label for="categoria-oficial">Categoria</label>
+        <input
+          id="categoria-oficial"
+          type="text"
+          placeholder="Ex.: Reflexão"
+          required
+        >
+
+        <button type="submit">Publicar citação oficial</button>
+        <p id="mensagem-admin" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
   </main>
 
   <footer>
