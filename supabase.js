@@ -83,13 +83,14 @@ function atualizarInterfaceVisual() {
   signupBtn.hidden = conectado;
   logoutBtn.hidden = !conectado;
 
-  emailInput.hidden = conectado;
-  passwordInput.hidden = conectado;
+ nicknameInput.hidden = conectado;
+passwordInput.hidden = conectado;
 
   mensagem(
     authMessage,
     conectado
-      ? "Você está conectado: " + usuarioMentacoes.email
+     ? "Você está conectado: " +
+  (usuarioMentacoes.user_metadata?.nickname || "Membro")
       : "Entre ou crie sua conta para participar."
   );
 
