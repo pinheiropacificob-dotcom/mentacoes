@@ -1052,24 +1052,7 @@ Promise.resolve().then(() => {
 });
 
   // Executa as consultas depois do callback de autenticação.
-  Promise.resolve().then(async () => {
-    if (inicializacaoEmAndamento) return;
-
-    inicializacaoEmAndamento = true;
-
-    try {
-      if (usuarioMentacoes) {
-        await carregarPerfil();
-      }
-
-      await carregarCitacoes();
-    await carregarFavoritos();}
-     finally {
-      inicializacaoEmAndamento = false;
-    }
-  });
-});
-
+ 
  // -------------------------
 // INICIALIZAÇÃO
 // -------------------------
