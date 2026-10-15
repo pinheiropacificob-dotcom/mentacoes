@@ -120,10 +120,8 @@ passwordInput.hidden = conectado;
     fotoPerfilInput.disabled = false;
     salvarPerfilBtn.disabled = false;
 
-    emailPerfilExibido.textContent = conectado
-  ? "Você está conectado: " +
-    (usuarioMentacoes.user_metadata?.nickname || "Membro")
-  : "Entre ou crie sua conta para participar." || "";
+  emailPerfilExibido.textContent =
+  usuarioMentacoes.user_metadata?.nickname || "Membro";
     mensagem(mensagemPerfil, "");
   }
 }
