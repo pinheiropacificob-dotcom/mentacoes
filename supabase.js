@@ -33,6 +33,7 @@ async function verificarAdministrador() {
 
   return usuarioEhAdmin;
 }
+window.verificarAdministrador = verificarAdministrador;
 
 const $ = id => document.getElementById(id);
 
