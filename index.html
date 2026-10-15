@@ -66,10 +66,6 @@
   justify-content: center;
   gap: 12px;
 }
-}
-
-    }
-
     .menu-principal {
       display: flex;
       align-items: center;
@@ -905,8 +901,23 @@ button:focus-visible, a:focus-visible {
           </button>
         </div>
       </article>
+   <article class="quote">
+        <span class="category">Reflexão</span>
 
+        <p>
+          O tempo é a melhor solução.
+        </p>
+
+        <div class="author">Por: Equipe MENTAÇÕES</div>
       <p id="estado-citacoes" role="status" aria-live="polite">
+
+          <div class="actions">
+          <button type="button" onclick="copiar(this)">
+            Copiar citação
+          </button>
+        </div>
+      </article> 
+      
         Carregando citações publicadas...
       </p>
 
@@ -957,7 +968,7 @@ button:focus-visible, a:focus-visible {
 <p id="auth-message" role="status" aria-live="polite">
   Entre ou crie sua conta para participar.
 </p>
-
+</section>
 
     <!-- TELA DO PERFIL -->
     <section class="auth-box tela" id="perfil" data-tela="perfil">
