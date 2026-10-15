@@ -949,10 +949,12 @@ async function definirUsuario(usuario) {
   window.usuarioMentacoes = usuarioMentacoes;
 
 await verificarAdministrador();
-  
-  const painelAdmin = document.getElementById("painel-admin");
+
+const painelAdmin = document.getElementById("painel-admin");
+
 if (painelAdmin) {
-  painelAdmin.style.display = usuarioEhAdmin ? "block" : "none";
+  painelAdmin.style.display =
+    window.usuarioEhAdmin === true ? "block" : "none";
 }
   atualizarInterfaceVisual();
 
