@@ -760,6 +760,22 @@ try {
   }
 }
 
+async function definirUsuario(usuario) {
+  usuarioMentacoes = usuario ?? null;
+  window.usuarioMentacoes = usuarioMentacoes;
+
+  await verificarAdministrador();
+
+  atualizarInterfaceVisual();
+
+  if (usuarioMentacoes) {
+    await carregarPerfil();
+  }
+
+  await carregarCitacoes();
+  await carregarFavoritos();
+}
+
 async function carregarFavoritos() {
   const lista = $("lista-favoritos");
   const estado = $("estado-favoritos");
