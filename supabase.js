@@ -352,7 +352,7 @@ async function carregarCitacoes() {
 
   const { data: citacoes, error } = await supabaseClient
     .from("citacoes")
-    .select("id, conteudo, categoria, autor_id, criado_em")
+    .select("id, conteudo, categoria, autor_id, criado_em, oficial")
     .order("criado_em", { ascending: false });
 
   if (error) {
