@@ -1057,7 +1057,6 @@ Promise.resolve().then(() => {
 // INICIALIZAÇÃO
 // -------------------------
 
-let inicializacaoEmAndamento = false;
 
 supabaseClient.auth.onAuthStateChange((evento, session) => {
   usuarioMentacoes = session?.user ?? null;
