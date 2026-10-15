@@ -1080,17 +1080,7 @@ async function iniciarMentacoes() {
 
   await definirUsuario(data.session?.user ?? null);
 }
-
-
-  if (usuarioMentacoes) {
-    await carregarPerfil();
-  }
-
-  await carregarCitacoes();
-await carregarFavoritos();
-}
-
-iniciarMentacoes();
+ iniciarMentacoes();
 
 
 document
