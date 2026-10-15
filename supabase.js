@@ -618,18 +618,23 @@ acoes.append(copiarBtn, curtirBtn, favoritoBtn);
         if (!confirmar) return;
 
         apagarBtn.disabled = true;
+try {
+  let exclusao = supabaseClient
+    .from("citacoes")
+    .delete()
+    .eq("id", citacao.id);
 
-        try {
-          const { error } = await supabaseClient
-            .from("citacoes")
-            .delete()
-            .eq("id", citacao.id)
-            .eq("autor_id", usuarioMentacoes.id);
+  if (!usuarioEhAdmin) {
+    exclusao = exclusao.eq("autor_id", usuarioMentacoes.id);
+  }
 
-          if (error) throw error;
+  const { error } = await exclusao;
 
-          await carregarCitacoes();
-        } catch (error) {
+  if (error) throw error;
+
+  await carregarCitacoes();
+}
+        catch (error) {
           console.error(error);
           alert("Não foi possível excluir a citação.");
           apagarBtn.disabled = false;
