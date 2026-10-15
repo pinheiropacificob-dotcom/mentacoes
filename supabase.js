@@ -1070,16 +1070,70 @@ Promise.resolve().then(() => {
   });
 });
 
+async function 
+ // -------------------------
+// INICIALIZAÇÃO
+// -------------------------
+
+let inicializacaoEmAndamento = false;
+
+supabaseClient.auth.onAuthStateChange((evento, session) => {
+  usuarioMentacoes = session?.user ?? null;
+  window.usuarioMentacoes = usuarioMentacoes;
+
+  atualizarInterfaceVisual();
+
+  // Evita executar várias cargas simultaneamente.
+  if (inicializacaoEmAndamento) return;
+
+  inicializacaoEmAndamento = true;
+
+  Promise.resolve()
+    .then(async () => {
+      if (usuarioMentacoes) {
+        await carregarPerfil();
+      }
+
+      await carregarCitacoes();
+      await carregarFavoritos();
+    })
+    .catch(error => {
+      console.error("Erro ao atualizar a sessão:", error);
+    })
+    .finally(() => {
+      inicializacaoEmAndamento = false;
+    });
+});
+
 async function iniciarMentacoes() {
-  const { data, error } = await supabaseClient.auth.getSession();
+  try {
+    const { data, error } =
+      await supabaseClient.auth.getSession();
 
-  if (error) {
-    mensagem(authMessage, "Erro ao verificar sua sessão.");
-    return;
+    if (error) throw error;
+
+    usuarioMentacoes = data.session?.user ?? null;
+    window.usuarioMentacoes = usuarioMentacoes;
+
+    atualizarInterfaceVisual();
+
+    if (usuarioMentacoes) {
+      await carregarPerfil();
+    }
+
+    await carregarCitacoes();
+    await carregarFavoritos();
+  } catch (error) {
+    console.error("Erro ao iniciar o MENTAÇÕES:", error);
+    mensagem(
+      authMessage,
+      "Não foi possível verificar sua sessão. Atualize a página."
+    );
   }
-
-  await definirUsuario(data.session?.user ?? null);
 }
+
+iniciarMentacoes();
+
  iniciarMentacoes();
 
 
