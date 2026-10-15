@@ -36,6 +36,13 @@ async function verificarAdministrador() {
 window.verificarAdministrador = verificarAdministrador;
 
 const $ = id => document.getElementById(id);
+function gerarEmailInterno(nickname) {
+  return `${nickname.trim().toLowerCase()}@users.mentacoes.invalid`;
+}
+
+function validarNickname(nickname) {
+  return /^[A-Za-z0-9_]{3,20}$/.test(nickname);
+}
 
 const authForm = $("auth-form");
 const nicknameInput = $("nickname");
@@ -113,7 +120,10 @@ passwordInput.hidden = conectado;
     fotoPerfilInput.disabled = false;
     salvarPerfilBtn.disabled = false;
 
-    emailPerfilExibido.textContent = usuarioMentacoes.email || "";
+    emailPerfilExibido.textContent = conectado
+  ? "Você está conectado: " +
+    (usuarioMentacoes.user_metadata?.nickname || "Membro")
+  : "Entre ou crie sua conta para participar." || "";
     mensagem(mensagemPerfil, "");
   }
 }
@@ -885,15 +895,21 @@ async function carregarFavoritos() {
 // CADASTRO E LOGIN
 // -------------------------
 
+
 signupBtn.addEventListener("click", async () => {
-  const email = emailInput.value.trim();
+  const nickname = nicknameInput.value.trim();
   const password = passwordInput.value;
 
-  if (!email || password.length < 6) {
+  if (!validarNickname(nickname)) {
     mensagem(
       authMessage,
-      "Informe um e-mail válido e uma senha com pelo menos 6 caracteres."
+      "Use um nickname de 3 a 20 caracteres: letras, números ou _."
     );
+    return;
+  }
+
+  if (password.length < 6) {
+    mensagem(authMessage, "A senha deve ter pelo menos 6 caracteres.");
     return;
   }
 
@@ -902,22 +918,29 @@ signupBtn.addEventListener("click", async () => {
 
   try {
     const { data, error } = await supabaseClient.auth.signUp({
-      email,
-      password
+      email: gerarEmailInterno(nickname),
+      password,
+      options: {
+        data: { nickname }
+      }
     });
 
     if (error) throw error;
 
     if (data.session) {
-      await definirUsuario(data.session.user);
+      await definirUsuario(data.user);
     } else {
       mensagem(
         authMessage,
-        "Cadastro recebido. Se a confirmação de e-mail estiver ativa, confira sua caixa de entrada."
+        "Conta criada, mas não foi iniciada. Confira as configurações do Supabase."
       );
     }
   } catch (error) {
-    mensagem(authMessage, "Erro no cadastro: " + error.message);
+    console.error(error);
+    mensagem(
+      authMessage,
+      "Erro no cadastro. O nickname pode já estar em uso ou há uma configuração pendente."
+    );
   } finally {
     signupBtn.disabled = false;
   }
@@ -926,66 +949,32 @@ signupBtn.addEventListener("click", async () => {
 authForm.addEventListener("submit", async event => {
   event.preventDefault();
 
+  const nickname = nicknameInput.value.trim();
+  const password = passwordInput.value;
+
+  if (!validarNickname(nickname) || !password) {
+    mensagem(authMessage, "Informe um nickname válido e sua senha.");
+    return;
+  }
+
   loginBtn.disabled = true;
   mensagem(authMessage, "Entrando...");
 
   try {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email: emailInput.value.trim(),
-      password: passwordInput.value
-    });
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email: gerarEmailInterno(nickname),
+        password
+      });
 
     if (error) throw error;
 
     await definirUsuario(data.user);
   } catch (error) {
-    mensagem(authMessage, "Erro no login: " + error.message);
+    console.error(error);
+    mensagem(authMessage, "Nickname ou senha incorretos.");
   } finally {
     loginBtn.disabled = false;
-  }
-});
-
-
-async function definirUsuario(usuario) {
-  usuarioMentacoes = usuario || null;
-  window.usuarioMentacoes = usuarioMentacoes;
-
-await verificarAdministrador();
-
-const painelAdmin = document.getElementById("painel-admin");
-
-if (painelAdmin) {
-  painelAdmin.style.display =
-    window.usuarioEhAdmin === true ? "block" : "none";
-}
-  atualizarInterfaceVisual();
-
-  if (usuarioMentacoes) {
-    await carregarPerfil();
-  }
-
-  await carregarCitacoes();
-  await carregarFavoritos();
-}
-
-
-logoutBtn.addEventListener("click", async () => {
-  logoutBtn.disabled = true;
-
-  try {
-    const { error } = await supabaseClient.auth.signOut();
-    if (error) throw error;
-
-    usuarioMentacoes = null;
-    window.usuarioMentacoes = null;
-
-    atualizarInterfaceVisual();
-    await carregarCitacoes();
-    await carregarFavoritos();
-  } catch (error) {
-    mensagem(authMessage, "Erro ao sair: " + error.message);
-  } finally {
-    logoutBtn.disabled = false;
   }
 });
 
