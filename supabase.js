@@ -943,6 +943,8 @@ async function definirUsuario(usuario) {
   usuarioMentacoes = usuario || null;
   window.usuarioMentacoes = usuarioMentacoes;
 
+await verificarAdministrador();
+  
   atualizarInterfaceVisual();
 
   if (usuarioMentacoes) {
