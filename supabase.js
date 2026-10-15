@@ -1087,3 +1087,51 @@ await carregarFavoritos();
 }
 
 iniciarMentacoes();
+
+
+document
+  .getElementById("form-citacao-oficial")
+  ?.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const aviso = document.getElementById("mensagem-admin");
+    const conteudo = document
+      .getElementById("conteudo-oficial")
+      .value.trim();
+    const categoria = document
+      .getElementById("categoria-oficial")
+      .value.trim();
+
+    if (!usuarioMentacoes || !usuarioEhAdmin) {
+      aviso.textContent = "Acesso permitido apenas à equipe.";
+      return;
+    }
+
+    if (!conteudo || !categoria) {
+      aviso.textContent = "Preencha todos os campos.";
+      return;
+    }
+
+    aviso.textContent = "Publicando...";
+
+    const { error } = await supabaseClient
+      .from("citacoes")
+      .insert({
+        conteudo: conteudo,
+        categoria: categoria,
+        autor_id: usuarioMentacoes.id,
+        oficial: true
+      });
+
+    if (error) {
+      console.error(error);
+      aviso.textContent = "Erro ao publicar. Confira o Supabase.";
+      return;
+    }
+
+    document.getElementById("conteudo-oficial").value = "";
+    document.getElementById("categoria-oficial").value = "";
+    aviso.textContent = "Citação oficial publicada! 💜";
+
+    await carregarCitacoes();
+  });
