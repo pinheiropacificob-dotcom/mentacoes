@@ -1043,10 +1043,12 @@ let inicializacaoEmAndamento = false;
 
 supabaseClient.auth.onAuthStateChange((evento, session) => {
   // Evita repetir operações para o mesmo estado de autenticação.
-  usuarioMentacoes = session?.user ?? null;
-  window.usuarioMentacoes = usuarioMentacoes;
+ usuarioMentacoes = session?.user ?? null;
+window.usuarioMentacoes = usuarioMentacoes;
 
-  atualizarInterfaceVisual();
+Promise.resolve().then(() => {
+  definirUsuario(session?.user ?? null);
+});
 
   // Executa as consultas depois do callback de autenticação.
   Promise.resolve().then(async () => {
