@@ -38,7 +38,7 @@ window.verificarAdministrador = verificarAdministrador;
 const $ = id => document.getElementById(id);
 
 const authForm = $("auth-form");
-const emailInput = $("email");
+const nicknameInput = $("nickname");
 const passwordInput = $("password");
 const loginBtn = $("login-btn");
 const signupBtn = $("signup-btn");
