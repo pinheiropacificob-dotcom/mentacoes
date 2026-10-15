@@ -12,6 +12,27 @@ const supabaseClient = window.supabase.createClient(
 
 let usuarioMentacoes = null;
 window.usuarioMentacoes = null;
+let usuarioEhAdmin = false;
+window.usuarioEhAdmin = false;
+
+async function verificarAdministrador() {
+  usuarioEhAdmin = false;
+  window.usuarioEhAdmin = false;
+
+  if (!usuarioMentacoes) return false;
+
+  const { data, error } = await supabaseClient.rpc("is_admin");
+
+  if (error) {
+    console.error("Erro ao verificar administrador:", error);
+    return false;
+  }
+
+  usuarioEhAdmin = data === true;
+  window.usuarioEhAdmin = usuarioEhAdmin;
+
+  return usuarioEhAdmin;
+}
 
 const $ = id => document.getElementById(id);
 
