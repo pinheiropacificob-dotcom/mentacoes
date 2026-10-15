@@ -949,13 +949,16 @@ signupBtn.addEventListener("click", async () => {
         "Conta criada, mas não foi iniciada. Confira as configurações do Supabase."
       );
     }
-  } catch (error) {
-    console.error(error);
-    mensagem(
-      authMessage,
-      "Erro no cadastro. O nickname pode já estar em uso ou há uma configuração pendente."
-    );
-  } finally {
+
+} catch (error) {
+  console.error("Erro detalhado no cadastro:", error);
+
+  mensagem(
+    authMessage,
+    "Erro no cadastro: " + (error.message || "Erro desconhecido")
+  );
+}
+finally {
     signupBtn.disabled = false;
   }
 });
